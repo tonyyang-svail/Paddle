@@ -3,22 +3,45 @@ import numpy as np
 import paddle.v2 as paddle
 import paddle.v2.fluid as fluid
 
-images = fluid.layers.data(name='pixel', shape=[1, 28, 28], dtype='float32')
+images = fluid.layers.data(
+    name='pixel', shape=[1, 28, 28], dtype='float32', stop_gradient=False)
 label = fluid.layers.data(name='label', shape=[1], dtype='int64')
-conv_pool_1 = fluid.nets.simple_img_conv_pool(
-    input=images,
-    filter_size=5,
-    num_filters=20,
-    pool_size=2,
-    pool_stride=2,
-    act="relu")
-conv_pool_2 = fluid.nets.simple_img_conv_pool(
-    input=conv_pool_1,
-    filter_size=5,
-    num_filters=50,
-    pool_size=2,
-    pool_stride=2,
-    act="relu")
+
+# conv_pool_1 = fluid.nets.simple_img_conv_pool(
+#     input=images,
+#     filter_size=5,
+#     num_filters=20,
+#     pool_size=2,
+#     pool_stride=2,
+#     act="relu")
+# conv_pool_2 = fluid.nets.simple_img_conv_pool(
+#     input=conv_pool_1,
+#     filter_size=5,
+#     num_filters=50,
+#     pool_size=2,
+#     pool_stride=2,
+#     act="relu")
+
+places = fluid.default_main_program().global_block().create_var()
+pd = fluid.layers.ParallelDo(places=places)
+with pd.do():
+    pd.read_input(images)
+    conv_pool_1 = fluid.nets.simple_img_conv_pool(
+        input=images,
+        filter_size=5,
+        num_filters=20,
+        pool_size=2,
+        pool_stride=2,
+        act="relu")
+    conv_pool_2 = fluid.nets.simple_img_conv_pool(
+        input=conv_pool_1,
+        filter_size=5,
+        num_filters=50,
+        pool_size=2,
+        pool_stride=2,
+        act="relu")
+    pd.write_output(conv_pool_2)
+conv_pool_2 = pd()
 
 predict = fluid.layers.fc(input=conv_pool_2, size=10, act="softmax")
 cost = fluid.layers.cross_entropy(input=predict, label=label)

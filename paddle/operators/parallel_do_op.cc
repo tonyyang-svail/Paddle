@@ -97,6 +97,9 @@ class ParallelDoOp : public framework::OperatorBase {
         PADDLE_THROW("Not Implemented");
       }
 
+      //      auto executor = framework::Executor(place);
+      //      executor.Run(*program, cur_scope, block->ID(),
+      //                   false /*create_local_scope*/);
       // execute
       workers.push_back(std::thread([program, cur_scope, place, block] {
         auto executor = framework::Executor(place);
@@ -104,9 +107,11 @@ class ParallelDoOp : public framework::OperatorBase {
                      false /*create_local_scope*/);
       }));
     }
+    LOG(INFO) << "-----------";
     for (auto &worker : workers) {
       worker.join();
     }
+    LOG(INFO) << "-----------";
 
     // merge output
     for (auto &o_name : Outputs(kOutputs)) {
@@ -184,12 +189,16 @@ class ParallelDoGradOp : public OperatorBase {
       auto &place = places[place_idx];
       auto *cur_scope = sub_scopes[place_idx];
 
-      // execute
-      workers.push_back(std::thread([program, cur_scope, place, block] {
-        auto executor = framework::Executor(place);
-        executor.Run(*program, cur_scope, block->ID(),
-                     false /*create_local_scope*/);
-      }));
+      auto executor = framework::Executor(place);
+      executor.Run(*program, cur_scope, block->ID(),
+                   false /*create_local_scope*/);
+
+      //      // execute
+      //      workers.push_back(std::thread([program, cur_scope, place, block] {
+      //        auto executor = framework::Executor(place);
+      //        executor.Run(*program, cur_scope, block->ID(),
+      //                     false /*create_local_scope*/);
+      //      }));
     }
     for (auto &worker : workers) {
       worker.join();
