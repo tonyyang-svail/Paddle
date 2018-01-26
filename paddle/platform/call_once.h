@@ -15,6 +15,7 @@ limitations under the License. */
 #pragma once
 
 #include <mutex>
+#include "glog/logging.h"
 
 namespace paddle {
 namespace platform {
@@ -29,7 +30,7 @@ namespace platform {
 */
 template <typename Callable, typename... Args>
 inline void call_once(std::once_flag& flag, Callable&& f, Args&&... args) {
-  bool good = false;
+  bool good = true;
   std::exception ex;
   std::call_once(flag,
                  [&](Args&&... args) {

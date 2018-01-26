@@ -340,10 +340,12 @@ void LoDTensor::MergeLoDTensor(
   PADDLE_ENFORCE(!lod_tensors.empty());
 
   framework::DDim new_dim = lod_tensors[0]->dims();
+  LOG(INFO) << *lod_tensors[0];
   std::type_index new_type = lod_tensors[0]->type();
   framework::DataLayout new_layout = lod_tensors[0]->layout();
   LoD new_lod = lod_tensors[0]->lod();
   for (size_t i = 1; i < lod_tensors.size(); ++i) {
+    LOG(INFO) << *lod_tensors[i];
     auto *t = lod_tensors[i];
     PADDLE_ENFORCE_EQ(new_type.hash_code(), t->type().hash_code());
     PADDLE_ENFORCE_EQ(new_layout, t->layout());

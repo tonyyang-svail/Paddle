@@ -163,6 +163,7 @@ class ParallelDoOp : public framework::OperatorBase {
 
     // merge output
     for (auto &o_name : Outputs(kOutputs)) {
+      VLOG(3) << "Merging " << o_name;
       std::vector<const framework::LoDTensor *> lod_tensors;
       lod_tensors.reserve(sub_scopes.size());
       for (auto *sub_scope : sub_scopes) {
