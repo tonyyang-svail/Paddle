@@ -1,0 +1,1 @@
+nvprof -f -o mnist-para-1-bias-0.nvvp python benchmark.py --batch_size=1024 --use_data_parallel --label_size=1000 --iterations=3

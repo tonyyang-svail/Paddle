@@ -39,6 +39,7 @@ static void SplitTensorAndMoveTensorToScopes(
     const std::vector<std::string> &names) {
   size_t num_sub_scopes = 0;
   for (auto &argu : names) {
+    VLOG(3) << argu;
     auto *var = scope.FindVar(argu);
     const auto &tensor = var->Get<LoDTensor>();
     auto lod_tensors = tensor.SplitLoDTensor(places);
@@ -114,6 +115,7 @@ class ParallelDoOp : public framework::OperatorBase {
 
   void Run(const framework::Scope &scope,
            const platform::Place &place) const override {
+    LOG(INFO) << "-------------";
     // get device context from pool
     platform::DeviceContextPool &pool = platform::DeviceContextPool::Instance();
     auto &dev_ctx = *pool.Get(place);
@@ -125,6 +127,9 @@ class ParallelDoOp : public framework::OperatorBase {
 
     auto &sub_scopes = *scope.FindVar(Output(kParallelScopes))
                             ->GetMutable<std::vector<framework::Scope *>>();
+
+    LOG(INFO) << place;
+    for (auto &p : places) LOG(INFO) << p;
 
     // split input
     SplitTensorAndMoveTensorToScopes(scope, &sub_scopes, places,
@@ -204,6 +209,7 @@ class ParallelDoGradOp : public framework::OperatorBase {
 
   void Run(const framework::Scope &scope,
            const platform::Place &place) const override {
+    LOG(INFO) << "-----------------";
     auto *block = Attr<framework::BlockDesc *>(kParallelBlock);
     auto *program = block->Program();
 
@@ -244,6 +250,7 @@ class ParallelDoGradOp : public framework::OperatorBase {
                       const std::vector<framework::Scope *> &sub_scopes,
                       const platform::PlaceList &places) const {
     for (auto &s : Outputs(framework::GradVarName(kParameters))) {
+      VLOG(3) << s;
       std::string tmp_name;
       auto *tmp = sub_scopes[0]->Var(&tmp_name);
 

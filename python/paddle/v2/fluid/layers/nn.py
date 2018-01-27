@@ -914,7 +914,8 @@ def conv2d(input,
             'use_cudnn': use_cudnn
         })
 
-    pre_act = helper.append_bias_op(pre_bias, dim_start=1, dim_end=2)
+    # pre_act = helper.append_bias_op(pre_bias, dim_start=1, dim_end=2)
+    pre_act = pre_bias
 
     return helper.append_activation(pre_act)
 
