@@ -189,7 +189,7 @@ def Print(input,
               message="The content of some_layer: ")
     '''
     helper = LayerHelper('print', **locals())
-    out = helper.create_tmp_variable(dtype=helper.input_dtype())
+    out = helper.create_tmp_variable(dtype=helper.input_dtype(), stop_gradient=True)
     helper.append_op(
         type='print',
         inputs={'In': input},

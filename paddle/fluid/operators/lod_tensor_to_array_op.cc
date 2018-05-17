@@ -47,6 +47,13 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
     auto max_seq_len = items[0].length;
     auto rank_level = rank_table.level();
 
+    std::cout << "------------------- " << rank_level << " -- max_seq_len "
+              << max_seq_len << " item size " << items.size();
+
+    for (auto &item : items) {
+        std::cout << "  item length " << item.length;
+    }
+
     PADDLE_ENFORCE_LT(rank_level, x.lod().size(),
                       "Input should be a LOD tensor, and size is at least %d",
                       rank_level + 1);

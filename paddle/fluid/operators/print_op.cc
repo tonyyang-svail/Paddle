@@ -163,6 +163,7 @@ class TensorPrintOp : public framework::OperatorBase {
     out_tensor.set_lod(in_tensor.lod());
 
     std::string print_phase = Attr<std::string>("print_phase");
+    std::cout << "print phase --------- " << print_phase;
     if (print_phase != phase && print_phase != std::string(kBoth)) {
       return;
     }
