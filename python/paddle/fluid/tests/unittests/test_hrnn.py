@@ -21,7 +21,7 @@ import numpy
 class TestNestedRNN(unittest.TestCase):
     def setUp(self):
         self.dict_dim = 10
-        self.word_dim = 8
+        self.word_dim = 1
         self.hidden_dim = 8
         self.label_dim = 3
         self.data = [
@@ -101,7 +101,7 @@ class TestNestedRNN(unittest.TestCase):
 
     def hrnn(self):
         data = fluid.layers.data(
-                        name='word', shape=[1], dtype='int64', lod_level=1)
+                        name='word', shape=[1], dtype='int64', lod_level=2)
         fluid.layers.Print(data, -1, "raw_data")
 
         label = fluid.layers.data(name='label', shape=[1], dtype='int64')
@@ -111,7 +111,7 @@ class TestNestedRNN(unittest.TestCase):
             input=data, size=[self.dict_dim, self.word_dim])
 
         # emb_reduce1 = fluid.layers.sequence_last_step(input=emb)
-        # fluid.layers.Print(emb)
+        fluid.layers.Print(emb)
 
 
         rnn = fluid.layers.DynamicRNN()
@@ -125,7 +125,7 @@ class TestNestedRNN(unittest.TestCase):
             y = rnn.step_input(emb)
 
             # fluid.layers.Print(y, print_phase='forward')
-            #fluid.layers.Print(d)
+            fluid.layers.Print(y)
             mem = rnn.memory(shape=[self.hidden_dim])
             out = fluid.layers.fc(input=[y, mem],
                                   size=self.hidden_dim,
@@ -156,13 +156,13 @@ class TestNestedRNN(unittest.TestCase):
 
         with fluid.program_guard(main_program, startup_program):
             inputs, outputs = self.hrnn()
-        print(main_program)
+        # print(main_program)
 
         cpu = fluid.CPUPlace()
         exe = fluid.Executor(cpu)
         exe.run(startup_program)
         feeder = fluid.DataFeeder(feed_list=inputs, place=cpu)
-        dataset = paddle.batch(self.rnn_data, batch_size=2)
+        dataset = paddle.batch(self.hrnn_data, batch_size=2)
         for data in dataset():
             print data
             loss_np = exe.run(main_program,
