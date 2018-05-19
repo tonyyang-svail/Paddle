@@ -125,7 +125,7 @@ class TestNestedRNN(unittest.TestCase):
             y = rnn.step_input(emb)
             print("after step --------------")
             # fluid.layers.Print(y, print_phase='forward')
-            # fluid.layers.Print(emb)
+            fluid.layers.Print(emb)
             mem = rnn.memory(shape=[self.hidden_dim])
             out = fluid.layers.fc(input=[y, mem],
                                   size=self.hidden_dim,
