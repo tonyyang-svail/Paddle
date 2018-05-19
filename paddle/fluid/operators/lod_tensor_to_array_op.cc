@@ -36,23 +36,29 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
  private:
   void RunImpl(const framework::Scope &scope,
                const platform::Place &place) const override {
+    std::cout << "debug********************" << std::endl;;
     auto &x = detail::Ref(scope.FindVar(Input("X")), "Cannot find input %s",
                           Input("X"))
                   .Get<framework::LoDTensor>();
     auto &rank_table = detail::Ref(scope.FindVar(Input("RankTable")))
                            .Get<framework::LoDRankTable>();
-    auto &out = *detail::Ref(scope.FindVar(Output("Out")))
-                     .GetMutable<framework::LoDTensorArray>();
+
+    // TODO(haichao) : items should be at the correct lod
     auto &items = rank_table.items();
     auto max_seq_len = items[0].length;
     auto rank_level = rank_table.level();
 
-    std::cout << "------------------- " << rank_level << " -- max_seq_len "
-              << max_seq_len << " item size " << items.size();
+    std::cout << "---------rank levle  " << rank_level << " -- max_seq_len "
+              << max_seq_len << " item size " << items.size() << std::endl;;
 
     for (auto &item : items) {
-        std::cout << "  item length " << item.length;
+        std::cout << "  item length " << item.length << std::endl;
     }
+
+    std::cout << "123-------" << std::endl;
+    auto &out = *detail::Ref(scope.FindVar(Output("Out")))
+                     .GetMutable<framework::LoDTensorArray>();
+    std::cout << "123-------end" << std::endl;
 
     PADDLE_ENFORCE_LT(rank_level, x.lod().size(),
                       "Input should be a LOD tensor, and size is at least %d",
@@ -60,17 +66,29 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
     out.resize(max_seq_len);
     std::vector<std::vector<CopyRange>> copy_ranges(max_seq_len);
 
+    std::cout << "here ------------------" << std::endl;
     // set out[i] lod
+    // TODO(haichao) : max_seq_len shoud corresponding to the proper lod level
     for (size_t t = 0; t < max_seq_len; t++) {
+        std::cout << "here ------------------2" << std::endl;
       auto &lod = *out[t].mutable_lod();
+      std::cout << "here ------------------3" << std::endl;
       lod.clear();
       for (auto &item : items) {
+          std::cout << "here ------------------4" <<std::endl;
         if (t >= item.length) {
           break;
         }
+        // TODO(haichao) : here start_idx should be in the appriporate lod level
+        // (rather than absolute)
+        std::cout << "here ------------------5" <<std::endl;
         size_t start_idx = x.lod()[rank_level][item.index] + t;
+        std::cout << "here ------------------6" <<std::endl;
+        std::cout << "start_idx " << start_idx << std::endl;
+        std::cout << x.lod() << std::endl;
+        // rank_level + 1 -> rank_level
         auto lod_and_offset = framework::GetSubLoDAndAbsoluteOffset(
-            x.lod(), start_idx, start_idx + 1, rank_level + 1);
+            x.lod(), start_idx, start_idx + 1, rank_level - 1);
         auto &lod_length = lod_and_offset.first;
         framework::AppendLoD(&lod, lod_length);
         size_t start_offset = lod_and_offset.second.first;

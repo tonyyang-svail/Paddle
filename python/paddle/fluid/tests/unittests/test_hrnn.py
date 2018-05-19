@@ -26,7 +26,7 @@ class TestNestedRNN(unittest.TestCase):
         self.label_dim = 3
         self.data = [
             [[[1, 3, 2], [4, 5, 2]], 0],
-            [[[0, 2], [2, 5], [0, 1, 2]], 1],
+            [[[0, 0], [0, 2], [2, 5], [0, 1, 2]], 1],
         ]
 
     def rnn_data(self):
@@ -106,26 +106,26 @@ class TestNestedRNN(unittest.TestCase):
 
         label = fluid.layers.data(name='label', shape=[1], dtype='int64')
 
-
         emb = fluid.layers.embedding(
             input=data, size=[self.dict_dim, self.word_dim])
 
         # emb_reduce1 = fluid.layers.sequence_last_step(input=emb)
         fluid.layers.Print(emb)
 
-
         rnn = fluid.layers.DynamicRNN()
 
+        print("before RNN-------------")
         with rnn.block():
             """
             emb_reduce1 = fluid.layers.sequence_last_step(input=emb)
             fluid.layers.Print(emb_reduce1)
             out = emb_reduce1
             """
+            print("before step -------------")
             y = rnn.step_input(emb)
-
+            print("after step --------------")
             # fluid.layers.Print(y, print_phase='forward')
-            fluid.layers.Print(y)
+            # fluid.layers.Print(emb)
             mem = rnn.memory(shape=[self.hidden_dim])
             out = fluid.layers.fc(input=[y, mem],
                                   size=self.hidden_dim,
@@ -135,7 +135,9 @@ class TestNestedRNN(unittest.TestCase):
             # fluid.layers.Print(out)
             # fluid.layers.Print(emb, print_phase='forward')
             rnn.output(out)
+        print("after RNN block")
         out = rnn()
+        print("after rnn() --------")
         # fluid.layers.Print(out, print_phase='forward')
         rep = fluid.layers.sequence_last_step(input=out)
         # fluid.layers.Print(rep, print_phase='forward')
@@ -161,6 +163,7 @@ class TestNestedRNN(unittest.TestCase):
         cpu = fluid.CPUPlace()
         exe = fluid.Executor(cpu)
         exe.run(startup_program)
+        ### DATA ##########
         feeder = fluid.DataFeeder(feed_list=inputs, place=cpu)
         dataset = paddle.batch(self.hrnn_data, batch_size=2)
         for data in dataset():

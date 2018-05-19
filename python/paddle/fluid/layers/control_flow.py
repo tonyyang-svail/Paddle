@@ -189,7 +189,7 @@ def Print(input,
               message="The content of some_layer: ")
     '''
     helper = LayerHelper('print', **locals())
-    out = helper.create_tmp_variable(dtype=helper.input_dtype(), stop_gradient=True)
+    out = helper.create_tmp_variable(dtype=helper.input_dtype())
     helper.append_op(
         type='print',
         inputs={'In': input},
@@ -467,6 +467,9 @@ class StaticRNN(object):
         elif self.seq_len != x.shape[0]:
             raise ValueError("Static RNN only take fix seq_len input")
 
+        print("name %s  type %s" %(x.name, x.type))
+        print(x.shape)
+        print(x.shape[1:])
         ipt = self.helper.create_variable(
             name=x.name, dtype=x.dtype, shape=list(x.shape[1:]), type=x.type)
         self.inputs.append(ipt)
@@ -1319,6 +1322,8 @@ class DynamicRNN(object):
     AFTER_RNN = 2
 
     def __init__(self, name=None):
+
+        print("+++++++++++++++")
         self.helper = LayerHelper('dynamic_rnn', name=name)
         self.status = DynamicRNN.BEFORE_RNN
         self.lod_rank_table = None
@@ -1341,6 +1346,7 @@ class DynamicRNN(object):
             raise TypeError(
                 "step_input() can only take a Variable as its input.")
         parent_block = self._parent_block_()
+        print("in RNN----------------")
         if self.lod_rank_table is None:
             self.lod_rank_table = parent_block.create_var(
                 name=unique_name.generate('lod_rank_table'),
@@ -1349,7 +1355,8 @@ class DynamicRNN(object):
             parent_block.append_op(
                 type='lod_rank_table',
                 inputs={"X": x},
-                outputs={"Out": self.lod_rank_table})
+                outputs={"Out": self.lod_rank_table},
+                attrs={'level': 1})
             self.max_seq_len = parent_block.create_var(
                 name=unique_name.generate('dynamic_rnn_max_seq_len'),
                 dtype='int64')

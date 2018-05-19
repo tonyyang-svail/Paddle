@@ -17,6 +17,7 @@ limitations under the License. */
 namespace paddle {
 namespace framework {
 void LoDRankTable::Reset(const LoD& lod, size_t level) {
+  std::cout << "lod level -----org ------ " << level;
   this->coarse_lod_.clear();
   this->items_.clear();
   PADDLE_ENFORCE(level < lod.size(),

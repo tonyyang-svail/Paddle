@@ -284,4 +284,4 @@ namespace ops = paddle::operators;
 REGISTER_OPERATOR(print, ops::TensorPrintOp, ops::PrintOpProtoAndCheckMaker,
                   ops::PrintOpProtoAndCheckGradOpMaker, ops::InferShapeForward,
                   ops::InferVarType);
-REGISTER_OPERATOR(print_grad, ops::TensorPrintOp, ops::InferShapeBackward);
+// REGISTER_OPERATOR(print_grad, ops::TensorPrintOp, ops::InferShapeBackward);
