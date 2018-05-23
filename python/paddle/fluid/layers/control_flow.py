@@ -1383,7 +1383,9 @@ class DynamicRNN(object):
             inputs={'X': x,
                     'RankTable': self.lod_rank_table},
             outputs={'Out': input_array})
-        return array_read(array=input_array, i=self.step_idx)
+        read_res = array_read(array=input_array, i=self.step_idx)
+        Print(read_res, print_phase='forward', message='read_res')
+        return read_res
 
     def static_input(self, x):
         self._assert_in_rnn_block_("static_input")

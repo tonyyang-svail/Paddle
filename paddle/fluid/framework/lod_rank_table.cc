@@ -24,12 +24,11 @@ void LoDRankTable::Reset(const LoD& lod, size_t level) {
                  "Cannot rank lod since the level %d is less than lod size %d",
                  level, lod.size());
   coarse_lod_.reserve(lod.size() - level);
-  // coarse_lod_.reserve(level);
-  /*
+  fine_lod_.reserve(level);
+
   for (size_t i = 0; i < level; ++i) {
-    coarse_lod_.push_back(lod[i]);
-  }*/
-  level_ = level;
+    fine_lod_.push_back(lod[i]);
+  }
   for (size_t i = level; i < lod.size(); ++i) {
     coarse_lod_.push_back(lod[i]);
   }

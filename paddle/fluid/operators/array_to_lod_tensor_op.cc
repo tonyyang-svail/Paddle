@@ -89,27 +89,30 @@ class ArrayToLoDTensorOp : public framework::OperatorBase {
     out_lod->clear();
     size_t out_offset = 0;
     auto prefix_lod = rank_table.coarse_lod();
+    // auto prefix_lod = rank_table.fine_lod();
 
     std::cout << "predix lod " << prefix_lod
               << "rank table " << rank_table << std::endl;
     std::cout << "out lod " << out_lod << std::endl;
-    auto &cur_level_lod = prefix_lod.back();
-    if (rank_table.level() < 1) {
-        prefix_lod.emplace_back();
-        cur_level_lod = prefix_lod.back();
-        cur_level_lod.push_back(0);
-    }
+    // auto &cur_level_lod = prefix_lod.back();
+    // if (rank_table.level() < 1) {
+    // prefix_lod.emplace_back();
+    // cur_level_lod = prefix_lod.back();
+    // prefix_lod.emplace_front();
+    // auto cur_level_lod = prefix_lod.front();
+    // cur_level_lod.push_back(0);
+    // }
     for (size_t idx : table_item_idx) {
-        if (rank_table.level() < 1) {
-            cur_level_lod.push_back(cur_level_lod.back()
-                                    + table_items[idx].length);
-        }
+        //    if (rank_table.level() < 1) {
+        // cur_level_lod.push_back(cur_level_lod.back()
+        //                        + table_items[idx].length);
+        // }
         for (size_t x_idx = 0; x_idx < table_items[idx].length; ++x_idx) {
             auto lod_and_offset = framework::GetSubLoDAndAbsoluteOffset(
                                            x[x_idx].lod(), idx, idx + 1, 0);
-            auto &lod_length = lod_and_offset.first;
+            // auto &lod_length = lod_and_offset.first;
             // what does this mean
-            framework::AppendLoD(out_lod, lod_length);
+            // framework::AppendLoD(out_lod, lod_length);
             std::cout << "predix lod: in-loop" << prefix_lod << std::endl;
 
             size_t start_offset = lod_and_offset.second.first;
