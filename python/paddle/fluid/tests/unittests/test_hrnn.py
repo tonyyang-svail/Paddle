@@ -101,8 +101,8 @@ class TestNestedRNN(unittest.TestCase):
 
     def hrnn(self):
         data = fluid.layers.data(
-                        name='word', shape=[1], dtype='int64', lod_level=1)
-        fluid.layers.Print(data, message="raw_data")
+                        name='word', shape=[1], dtype='int64', lod_level=2)
+        # fluid.layers.Print(data, message="raw_data")
 
         label = fluid.layers.data(name='label', shape=[1], dtype='int64')
 
@@ -110,7 +110,7 @@ class TestNestedRNN(unittest.TestCase):
             input=data, size=[self.dict_dim, self.word_dim])
 
         # emb_reduce1 = fluid.layers.sequence_last_step(input=emb)
-        fluid.layers.Print(emb)
+        # fluid.layers.Print(emb)
 
         rnn = fluid.layers.DynamicRNN()
 
@@ -131,12 +131,12 @@ class TestNestedRNN(unittest.TestCase):
             fluid.layers.Print(y, print_phase='forward', message='y')
             print("y --lod level ------------- %s" % (y.lod_level))
             # fluid.layers.Print(y, print_phase='forward')
-            # y = fluid.layers.sequence_last_step(input=y)
-            fluid.layers.Print(y, print_phase='forward', message='y_last')
+            y_last = fluid.layers.sequence_last_step(input=y)
+            fluid.layers.Print(y_last, print_phase='forward', message='y_last')
             print("after step --------------")
             # fluid.layers.Print(emb)
             mem = rnn.memory(shape=[self.hidden_dim])
-            out = fluid.layers.fc(input=[y, mem],
+            out = fluid.layers.fc(input=[y_last, mem],
                                   size=self.hidden_dim,
                                   act='tanh')
             fluid.layers.Print(out, print_phase='forward', message='out_inner')
@@ -175,7 +175,7 @@ class TestNestedRNN(unittest.TestCase):
         exe.run(startup_program)
         ### DATA ##########
         feeder = fluid.DataFeeder(feed_list=inputs, place=cpu)
-        dataset = paddle.batch(self.rnn_data, batch_size=2)
+        dataset = paddle.batch(self.hrnn_data, batch_size=2)
         for data in dataset():
             print data
             loss_np = exe.run(main_program,

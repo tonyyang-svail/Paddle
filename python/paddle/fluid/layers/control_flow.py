@@ -1383,6 +1383,8 @@ class DynamicRNN(object):
             inputs={'X': x,
                     'RankTable': self.lod_rank_table},
             outputs={'Out': input_array})
+
+        # Print(input_array, print_phase='forward', message='input_array')
         read_res = array_read(array=input_array, i=self.step_idx)
         Print(read_res, print_phase='forward', message='read_res')
         return read_res
@@ -1535,6 +1537,15 @@ class DynamicRNN(object):
     def output(self, *outputs):
         self._assert_in_rnn_block_('output')
         parent_block = self._parent_block_()
+        # reinduce lod from output
+        print("output level : ----------- %s " % (outputs[0].lod_level))
+        """
+        parent_block.append_op(
+            type='lod_rank_table',
+            inputs={"X": outputs[0]},
+            outputs={"Out": self.lod_rank_table},
+            attrs={'level': x.lod_level - 1})
+        """
         for each in outputs:
             outside_array = parent_block.create_var(
                 name=unique_name.generate("_".join(
