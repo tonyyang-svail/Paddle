@@ -51,6 +51,7 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
     std::cout << "---------rank levle  " << rank_level << " -- max_seq_len "
               << max_seq_len << " item size " << items.size() << std::endl;;
 
+    std::cout << "x.lod " << x.lod() << std::endl;
     for (auto &item : items) {
         std::cout << "  item length " << item.length << std::endl;
     }

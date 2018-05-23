@@ -38,7 +38,7 @@ class LoDRankTable {
     size_t length;
   };
 
-  LoDRankTable() {}
+  LoDRankTable() { level_ = 0; }
 
   void Reset(const LoD& lod, size_t level);
 
@@ -46,11 +46,13 @@ class LoDRankTable {
 
   const LoD& coarse_lod() const { return this->coarse_lod_; }
 
-  size_t level() const { return coarse_lod_.size(); }
+  size_t level() const { return level_; }
+  // size_t level() const { return coarse_lod_.size(); }
 
  private:
   LoD coarse_lod_;
   std::vector<TableItem> items_;
+  size_t level_;
 };
 
 }  // namespace framework
