@@ -40,21 +40,25 @@ class SequencePoolKernel : public framework::OpKernel<T> {
     auto dims = in->dims();
     auto lod = in->lod();
     // InferShape by lod
+    std::cout << "in-seq-pool lod " << in->lod() << std::endl;
     PADDLE_ENFORCE_EQ(lod.size(), 1UL, "Only support one level sequence now.");
     PADDLE_ENFORCE_GE(
         dims[0],
         /*batch size = */ static_cast<int64_t>(lod[0].size() - 1),
         "The first dimension of Input(X) must be large than batch size.");
     dims[0] = lod[0].size() - 1;
+    std::cout << "--------1 " << std::endl;
     out->Resize({dims});
     out->mutable_data<T>(context.GetPlace());
     if (pooltype == "MAX") {
       index->Resize({dims});
       index->mutable_data<int>(context.GetPlace());
     }
+    std::cout << "--------2 " << std::endl;
     math::SequencePoolFunctor<DeviceContext, T> pool;
     pool(context.template device_context<DeviceContext>(), pooltype, *in, out,
          index);
+    std::cout << "--------3 " << std::endl;
   }
 };
 

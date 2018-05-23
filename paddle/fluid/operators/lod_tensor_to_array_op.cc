@@ -55,10 +55,8 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
         std::cout << "  item length " << item.length << std::endl;
     }
 
-    std::cout << "123-------" << std::endl;
     auto &out = *detail::Ref(scope.FindVar(Output("Out")))
                      .GetMutable<framework::LoDTensorArray>();
-    std::cout << "123-------end" << std::endl;
 
     PADDLE_ENFORCE_LT(rank_level, x.lod().size(),
                       "Input should be a LOD tensor, and size is at least %d",
@@ -66,29 +64,25 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
     out.resize(max_seq_len);
     std::vector<std::vector<CopyRange>> copy_ranges(max_seq_len);
 
-    std::cout << "here ------------------" << std::endl;
     // set out[i] lod
     // TODO(haichao) : max_seq_len shoud corresponding to the proper lod level
     for (size_t t = 0; t < max_seq_len; t++) {
-        std::cout << "here ------------------2" << std::endl;
       auto &lod = *out[t].mutable_lod();
-      std::cout << "here ------------------3" << std::endl;
       lod.clear();
       for (auto &item : items) {
-          std::cout << "here ------------------4" <<std::endl;
         if (t >= item.length) {
           break;
         }
         // TODO(haichao) : here start_idx should be in the appriporate lod level
         // (rather than absolute)
-        std::cout << "here ------------------5" <<std::endl;
         size_t start_idx = x.lod()[rank_level][item.index] + t;
-        std::cout << "here ------------------6" <<std::endl;
         std::cout << "start_idx " << start_idx << std::endl;
         std::cout << x.lod() << std::endl;
         // rank_level + 1 -> rank_level
+        // when rank_level_curr is 0, GetSubLoD .. is not used effectively
+        auto rank_level_curr = rank_level >= 1 ? rank_level - 1 : 1;
         auto lod_and_offset = framework::GetSubLoDAndAbsoluteOffset(
-            x.lod(), start_idx, start_idx + 1, rank_level - 1);
+        x.lod(), start_idx, start_idx + 1, rank_level_curr);
         auto &lod_length = lod_and_offset.first;
         framework::AppendLoD(&lod, lod_length);
         size_t start_offset = lod_and_offset.second.first;

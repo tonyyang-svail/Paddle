@@ -189,7 +189,7 @@ def Print(input,
               message="The content of some_layer: ")
     '''
     helper = LayerHelper('print', **locals())
-    out = helper.create_tmp_variable(dtype=helper.input_dtype())
+    out = helper.create_tmp_variable(dtype=helper.input_dtype(), stop_gradient=True)
     helper.append_op(
         type='print',
         inputs={'In': input},
@@ -1356,7 +1356,7 @@ class DynamicRNN(object):
                 type='lod_rank_table',
                 inputs={"X": x},
                 outputs={"Out": self.lod_rank_table},
-                attrs={'level': 1})
+                attrs={'level': x.lod_level - 1})
             self.max_seq_len = parent_block.create_var(
                 name=unique_name.generate('dynamic_rnn_max_seq_len'),
                 dtype='int64')

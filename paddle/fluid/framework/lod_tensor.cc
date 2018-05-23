@@ -207,8 +207,7 @@ LoDAndOffset GetSubLoDAndAbsoluteOffset(const LoD &lod, size_t start_idx,
                                         size_t end_idx, size_t start_level) {
   LoD sub_lod;
 
-  // for (size_t level_idx = start_level; level_idx < lod.size(); ++level_idx) {
-  for (size_t level_idx = start_level; level_idx <= start_level; ++level_idx) {
+  for (size_t level_idx = start_level; level_idx < lod.size(); ++level_idx) {
     std::cout << "level index : " << level_idx << std::endl;
     PADDLE_ENFORCE_LE(start_idx, end_idx);
     PADDLE_ENFORCE_LT(end_idx, lod[level_idx].size());
@@ -219,6 +218,8 @@ LoDAndOffset GetSubLoDAndAbsoluteOffset(const LoD &lod, size_t start_idx,
     sub_lod.emplace_back(level_lens);
     start_idx = lod[level_idx][start_idx];
     end_idx = lod[level_idx][end_idx];
+    // added by hczhang
+    break;
   }
 
   return LoDAndOffset{sub_lod, {start_idx, end_idx}};
