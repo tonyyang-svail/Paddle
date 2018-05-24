@@ -1386,7 +1386,9 @@ class DynamicRNN(object):
 
         # Print(input_array, print_phase='forward', message='input_array')
         read_res = array_read(array=input_array, i=self.step_idx)
-        Print(read_res, print_phase='forward', message='read_res')
+        self.lod_table_low = lod_rank_table(read_res, level=0)
+        print("&&&&&&&&&&**************")
+        # Print(read_res, print_phase='forward', message='read_res')
         return read_res
 
     def static_input(self, x):
@@ -1434,7 +1436,8 @@ class DynamicRNN(object):
         for each_array in self.output_array:
             self.outputs.append(
                 array_to_lod_tensor(
-                    x=each_array, table=self.lod_rank_table))
+                    x=each_array, table=self.lod_table_low))
+                    #x=each_array, table=self.lod_rank_table))
 
     def __call__(self, *args, **kwargs):
         if self.status != DynamicRNN.AFTER_RNN:

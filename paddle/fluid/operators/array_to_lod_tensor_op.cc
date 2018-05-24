@@ -18,6 +18,7 @@ limitations under the License. */
 #include "paddle/fluid/framework/op_registry.h"
 #include "paddle/fluid/memory/memcpy.h"
 #include "paddle/fluid/platform/device_context.h"
+#include "paddle/fluid/operators/detail/safe_ref.h"
 
 namespace paddle {
 namespace operators {
@@ -113,7 +114,7 @@ class ArrayToLoDTensorOp : public framework::OperatorBase {
             // auto &lod_length = lod_and_offset.first;
             // what does this mean
             // framework::AppendLoD(out_lod, lod_length);
-            std::cout << "predix lod: in-loop" << prefix_lod << std::endl;
+            // std::cout << "predix lod: in-loop" << prefix_lod << std::endl;
 
             size_t start_offset = lod_and_offset.second.first;
             size_t end_offset = lod_and_offset.second.second;
@@ -137,10 +138,10 @@ class ArrayToLoDTensorOp : public framework::OperatorBase {
             out_offset += len;
         }
     }
-    std::cout << "predix lod: after " << prefix_lod << std::endl;
-    std::cout << "out lod before  " << out_lod << std::endl;
+    // std::cout << "predix lod: after " << prefix_lod << std::endl;
+    // std::cout << "out lod before  " << out_lod << std::endl;
     out_lod->insert(out_lod->begin(), prefix_lod.begin(), prefix_lod.end());
-    std::cout << "out lod after  " << out_lod << std::endl;
+    // std::cout << "out lod after  " << out_lod << std::endl;
   }
 };
 

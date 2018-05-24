@@ -69,6 +69,7 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
     // TODO(haichao) : max_seq_len shoud corresponding to the proper lod level
     for (size_t t = 0; t < max_seq_len; t++) {
       auto &lod = *out[t].mutable_lod();
+      std::cout << x.lod() << std::endl;
       lod.clear();
       for (auto &item : items) {
         if (t >= item.length) {
@@ -77,8 +78,8 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
         // TODO(haichao) : here start_idx should be in the appriporate lod level
         // (rather than absolute)
         size_t start_idx = x.lod()[rank_level][item.index] + t;
-        std::cout << "start_idx " << start_idx << std::endl;
-        std::cout << x.lod() << std::endl;
+        // std::cout << "start_idx " << start_idx << std::endl;
+        // std::cout << x.lod() << std::endl;
         // rank_level + 1 -> rank_level
         // when rank_level_curr is 0, GetSubLoD .. is not used effectively
         auto rank_level_curr = rank_level >= 1 ? rank_level - 1 : 1;
