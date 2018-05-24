@@ -1387,7 +1387,21 @@ class DynamicRNN(object):
         # Print(input_array, print_phase='forward', message='input_array')
         read_res = array_read(array=input_array, i=self.step_idx)
         self.lod_table_low = lod_rank_table(read_res, level=0)
+        # print("&&&&&&&&****************read_ level %s" %(read_res.level))
+        ##########
+        if self.lod_table_low is None:
+            self.lod_table_low = parent_block.create_var(
+                name=unique_name.generate('lod_rank_table'),
+                type=core.VarDesc.VarType.LOD_RANK_TABLE)
+            self.lod_table_low.stop_gradient = True
+            parent_block.append_op(
+                type='lod_rank_table',
+                inputs={"X": read_res},
+                outputs={"Out": self.lod_table_low},
+                attrs={'level': read_res.lod_level})
+        ##########
         print("&&&&&&&&&&**************")
+        print(self.lod_table_low)
         # Print(read_res, print_phase='forward', message='read_res')
         return read_res
 
@@ -1436,8 +1450,8 @@ class DynamicRNN(object):
         for each_array in self.output_array:
             self.outputs.append(
                 array_to_lod_tensor(
-                    x=each_array, table=self.lod_table_low))
-                    #x=each_array, table=self.lod_rank_table))
+                    #x=each_array, table=self.lod_table_low))
+                    x=each_array, table=self.lod_rank_table))
 
     def __call__(self, *args, **kwargs):
         if self.status != DynamicRNN.AFTER_RNN:

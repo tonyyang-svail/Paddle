@@ -69,7 +69,7 @@ class LoDTensorToArrayOp : public framework::OperatorBase {
     // TODO(haichao) : max_seq_len shoud corresponding to the proper lod level
     for (size_t t = 0; t < max_seq_len; t++) {
       auto &lod = *out[t].mutable_lod();
-      std::cout << x.lod() << std::endl;
+      std::cout << "t = " << t << lod << std::endl;
       lod.clear();
       for (auto &item : items) {
         if (t >= item.length) {

@@ -30,7 +30,7 @@ limitations under the License. */
 namespace paddle {
 namespace framework {
 
-std::ostream &operator<<(std::ostream &os, const LoD &lod) {
+/* std::ostream &operator<<(std::ostream &os, const LoD &lod) {
   os << "{";
   for (auto &v : lod) {
     os << "{";
@@ -46,6 +46,29 @@ std::ostream &operator<<(std::ostream &os, const LoD &lod) {
     os << "}";
   }
   os << "}";
+
+  return os;
+} */
+
+std::ostream &operator<<(std::ostream &os, const LoD &lod) {
+  os << "{";
+  for (auto i = 0; i < lod.size(); i++) {
+    auto v = lod[i];
+    os << "level " << i << "{";
+    bool is_first = true;
+    for (auto &i : v) {
+      if (is_first) {
+        os << i;
+        is_first = false;
+      } else {
+        os << ", " << i;
+      }
+    }
+    os << "}";
+  }
+  os << "}";
+  bool res = CheckLoD(lod, lod.size());
+  os << "is valid: " << res;
 
   return os;
 }
