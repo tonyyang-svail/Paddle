@@ -66,7 +66,8 @@ class DataToLoDTensorConverter(object):
         t = core.LoDTensor()
         t.set(arr, self.place)
         if self.lod_level > 0:
-            t.set_lod(self.lod[::-1])
+            t.set_lod(self.lod)
+            # t.set_lod(self.lod[::-1])
         return t
 
 

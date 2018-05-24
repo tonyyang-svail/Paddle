@@ -1386,9 +1386,10 @@ class DynamicRNN(object):
 
         # Print(input_array, print_phase='forward', message='input_array')
         read_res = array_read(array=input_array, i=self.step_idx)
-        self.lod_table_low = lod_rank_table(read_res, level=0)
+        # self.lod_table_low = lod_rank_table(read_res, level=0)
         # print("&&&&&&&&****************read_ level %s" %(read_res.level))
         ##########
+        """
         if self.lod_table_low is None:
             self.lod_table_low = parent_block.create_var(
                 name=unique_name.generate('lod_rank_table'),
@@ -1399,6 +1400,7 @@ class DynamicRNN(object):
                 inputs={"X": read_res},
                 outputs={"Out": self.lod_table_low},
                 attrs={'level': read_res.lod_level})
+        """
         ##########
         print("&&&&&&&&&&**************")
         print(self.lod_table_low)
