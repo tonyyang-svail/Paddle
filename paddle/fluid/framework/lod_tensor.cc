@@ -193,8 +193,10 @@ bool CheckLoD(const LoD &in, int tensor_height) {
   // NOTE LoD store the levels from top to bottom, so the higher level goes
   // first.
   for (size_t level = 0; level < in.size() - 1; level++) {
+      std::cout << "here  111" << std::endl;
     if (in[level].back() != in[level + 1].size() - 1) return false;
   }
+  std::cout << "here  after check" << std::endl;
   return true;
 }
 
