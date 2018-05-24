@@ -1403,7 +1403,6 @@ class DynamicRNN(object):
         """
         ##########
         print("&&&&&&&&&&**************")
-        print(self.lod_table_low)
         # Print(read_res, print_phase='forward', message='read_res')
         return read_res
 
@@ -1452,7 +1451,6 @@ class DynamicRNN(object):
         for each_array in self.output_array:
             self.outputs.append(
                 array_to_lod_tensor(
-                    #x=each_array, table=self.lod_table_low))
                     x=each_array, table=self.lod_rank_table))
 
     def __call__(self, *args, **kwargs):
