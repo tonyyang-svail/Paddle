@@ -1356,7 +1356,7 @@ class DynamicRNN(object):
                 type='lod_rank_table',
                 inputs={"X": x},
                 outputs={"Out": self.lod_rank_table},
-                attrs={'level': x.lod_level - 1})
+                attrs={'level': 0})
             self.max_seq_len = parent_block.create_var(
                 name=unique_name.generate('dynamic_rnn_max_seq_len'),
                 dtype='int64')

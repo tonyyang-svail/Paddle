@@ -23,15 +23,18 @@ void LoDRankTable::Reset(const LoD& lod, size_t level) {
   PADDLE_ENFORCE(level < lod.size(),
                  "Cannot rank lod since the level %d is less than lod size %d",
                  level, lod.size());
-  coarse_lod_.reserve(lod.size() - level);
-  fine_lod_.reserve(level);
+  coarse_lod_.reserve(level + 1);
+  fine_lod_.reserve(lod.size() - level - 1);
 
-  for (size_t i = 0; i < level; ++i) {
-    fine_lod_.push_back(lod[i]);
-  }
-  for (size_t i = level; i < lod.size(); ++i) {
+  for (size_t i = 0; i <= level; ++i) {
     coarse_lod_.push_back(lod[i]);
   }
+  for (size_t i = level + 1; i < lod.size(); ++i) {
+    fine_lod_.push_back(lod[i]);
+  }
+
+  std::cout << "coarse " << coarse_lod_ << std::endl;
+  std::cout << "fine " << fine_lod_ << std::endl;
 
   auto& vec = lod[level];
   for (size_t i = 0; i < vec.size() - 1; ++i) {

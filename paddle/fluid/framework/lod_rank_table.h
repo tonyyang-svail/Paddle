@@ -48,7 +48,7 @@ class LoDRankTable {
 
   const LoD& fine_lod() const { return this->fine_lod_; }
 
-  size_t level() const { return fine_lod_.size(); }
+  size_t level() const { return coarse_lod_.size() - 1; }
 
  private:
   LoD coarse_lod_;

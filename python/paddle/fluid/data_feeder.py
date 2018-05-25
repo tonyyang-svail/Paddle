@@ -54,20 +54,35 @@ class DataToLoDTensorConverter(object):
             self.data.append(data)
         else:
             cur_lod_len = len(data)
+            lod[0].append(lod[0][-1] + cur_lod_len)
+            #lod[-1].append(lod[-1][-1] + cur_lod_len)
+            #lod[0].append(lod[-1][-1] + cur_lod_len)
+            print("data feeder---------- %s ")
+            print(lod)
+            for each_data in data:
+                self._feed_impl_(each_data, lod[1:], lod_level - 1)
+
+    """
+    def _feed_impl_(self, data, lod, lod_level):
+        if lod_level == 0:
+            self.data.append(data)
+        else:
+            cur_lod_len = len(data)
             lod[-1].append(lod[-1][-1] + cur_lod_len)
             #lod[0].append(lod[-1][-1] + cur_lod_len)
             print("data feeder---------- %s ")
             print(lod)
             for each_data in data:
                 self._feed_impl_(each_data, lod[:-1], lod_level - 1)
+    """
 
     def done(self):
         arr = numpy.array(self.data, dtype=self.dtype).reshape(self.shape)
         t = core.LoDTensor()
         t.set(arr, self.place)
         if self.lod_level > 0:
-            #t.set_lod(self.lod)
-            t.set_lod(self.lod[::-1])
+            t.set_lod(self.lod)
+            #t.set_lod(self.lod[::-1])
         return t
 
 
