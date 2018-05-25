@@ -114,7 +114,7 @@ class TestNestedRNN(unittest.TestCase):
 
         rnn = fluid.layers.DynamicRNN()
 
-        # inner_rnn = fluid.layers.DynamicRNN()
+        rnn_inner = fluid.layers.DynamicRNN()
 
         print("before RNN-------------")
         with rnn.block():
@@ -129,8 +129,21 @@ class TestNestedRNN(unittest.TestCase):
 
             fluid.layers.Print(y, print_phase='forward', message='y')
             print("y --lod level ------------- %s" % (y.lod_level))
-            fluid.layers.Print(y, print_phase='forward')
-            y = fluid.layers.sequence_last_step(input=y)
+
+            with rnn_inner.block():
+                fluid.layers.Print(y, print_phase='forward', message='y_inner rnn')
+                y_inner = rnn_inner.step_input(y)
+                fluid.layers.Print(y, print_phase='forward', message='y_inner')
+                mem_inner = rnn_inner.memory(shape=[self.hidden_dim])
+                out_inner = fluid.layers.fc(input=[y_inner, mem_inner],
+                                  size=self.hidden_dim,
+                                  act='tanh')
+                # rnn_inner.update_memory(mem_inner, out_inner)
+                rnn_inner.output(out_inner)
+
+            y_inner = rnn_inner()
+            y = fluid.layers.sequence_last_step(input=y_inner)
+            # y = fluid.layers.sequence_last_step(input=y)
             fluid.layers.Print(y, print_phase='forward', message='y_last')
             print("after step --------------")
             # fluid.layers.Print(emb)
@@ -161,12 +174,74 @@ class TestNestedRNN(unittest.TestCase):
         sgd.minimize(loss=loss)
         return [data, label], [loss]
 
+    def hrnn_working_version(self):
+        data = fluid.layers.data(
+                        name='word', shape=[1], dtype='int64', lod_level=2)
+        fluid.layers.Print(data, message="raw_data")
+
+        label = fluid.layers.data(name='label', shape=[1], dtype='int64')
+
+        emb = fluid.layers.embedding(
+            input=data, size=[self.dict_dim, self.word_dim])
+
+        # emb_reduce1 = fluid.layers.sequence_last_step(input=emb)
+        # fluid.layers.Print(emb)
+
+        rnn = fluid.layers.DynamicRNN()
+
+        # inner_rnn = fluid.layers.DynamicRNN()
+
+        print("before RNN-------------")
+        with rnn.block():
+            """
+            emb_reduce1 = fluid.layers.sequence_last_step(input=emb)
+            fluid.layers.Print(emb_reduce1)
+            out = emb_reduce1
+            """
+            print("before step -------------")
+            print("lod --------- %s" % (emb.lod_level))
+            y = rnn.step_input(emb)
+
+            fluid.layers.Print(y, print_phase='forward', message='y')
+            print("y --lod level ------------- %s" % (y.lod_level))
+            fluid.layers.Print(y, print_phase='forward')
+            y = fluid.layers.sequence_last_step(input=y)
+            fluid.layers.Print(y, print_phase='forward', message='y_last')
+            print("after step --------------")
+            # fluid.layers.Print(emb)
+            # mem = rnn.memory(shape=[self.hidden_dim])
+            out = fluid.layers.fc(input=[y],
+                                  size=self.hidden_dim,
+                                  act='tanh')
+            # fluid.layers.Print(out, print_phase='forward', message='out_inner')
+            #rnn.update_memory(mem, out)
+            # fluid.layers.Print(out, print_phase='forward')
+            # fluid.layers.Print(out)
+            # fluid.layers.Print(emb, print_phase='forward')
+            rnn.output(out)
+        print("after RNN block")
+        out = rnn()
+        print("after rnn() --------")
+        # fluid.layers.Print(out, print_phase='forward')
+        fluid.layers.Print(out, print_phase='forward', message='out')
+        rep = fluid.layers.sequence_last_step(input=out)
+        # fluid.layers.Print(rep, print_phase='forward', message='out_last')
+        prob = fluid.layers.fc(input=rep, size=self.label_dim, act='softmax')
+        # fluid.layers.Print(prob, print_phase='forward', message='prob')
+        # fluid.layers.Print(prob)
+        loss = fluid.layers.cross_entropy(prob, label)
+        loss = fluid.layers.mean(loss)
+        fluid.layers.Print(loss, print_phase='forward', message='loss')
+        sgd = fluid.optimizer.Adam(1e-3)
+        sgd.minimize(loss=loss)
+        return [data, label], [loss]
+
     def test_hrnn(self):
         main_program = fluid.Program()
         startup_program = fluid.Program()
 
         with fluid.program_guard(main_program, startup_program):
-            inputs, outputs = self.hrnn()
+            inputs, outputs = self.hrnn_working_version()
         # print(main_program)
 
         cpu = fluid.CPUPlace()
