@@ -170,9 +170,15 @@ bool CheckLoD(const LoD &in, int tensor_height) {
   if (in.empty()) return true;
   for (const auto &level : in) {
     // check: there should be more than 2 offsets existing in each level.
-    if (level.size() < 2) return false;
+    if (level.size() < 2) {
+        std::cout << "here  333" << std::endl;
+        return false;
+    }
     // check: the first offset(the begin offset) of each level should be 0.
-    if (level.front() != 0) return false;
+    if (level.front() != 0) {
+       std::cout << "here  444" << std::endl;
+       return false;
+    }
     // check: all the offsets in a level should be ascending(no same items
     // allows).
     if (!std::is_sorted(level.begin(), level.begin(), [](size_t a, size_t b) {
@@ -180,6 +186,7 @@ bool CheckLoD(const LoD &in, int tensor_height) {
           return false;
         })) {
       LOG(INFO) << "ascending error";
+      std::cout << "here  222" << std::endl;
       return false;
     }
   }
